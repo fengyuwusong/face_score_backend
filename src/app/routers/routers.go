@@ -2,38 +2,34 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"app/config"
 	"app/routers/apis/v1/user"
 	"app/routers/apis/v1/file"
 	"app/routers/apis/v1/job"
 	"app/routers/apis/v1/comment"
 	"app/middleware"
+	"pkg/httpservice"
 )
 
-// 之后改进整合到app中
-var engine *gin.Engine
-
 func Start() {
-	config := config.GetConfig()
-	gin.SetMode(config.HttpServer.Mode)
-	engine = gin.Default()
+	httpService := httpservice.HttpService{}
+
+	// 启动
+	httpService.Setup()
 
 	// 注册中间件
-	registerMiddleWare()
+	registerMiddleWare(httpService.Engine)
 
 	// 注册路由
-	registerRoutes()
+	registerRoutes(httpService.Engine)
 
 }
 
-func registerMiddleWare() {
-	// 记录请求历史
-	engine.Use(middleware.Entrance)
+func registerMiddleWare(engine *gin.Engine) {
 	// 账号认证
 	engine.Use(middleware.Auth)
 }
 
-func registerRoutes() {
+func registerRoutes(engine *gin.Engine) {
 	// 查询用户信息
 	engine.GET("/user", user.Get)
 	// 添加用户
