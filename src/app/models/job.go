@@ -13,8 +13,7 @@ type Job struct {
 	UserId     int
 	FileId     int
 	Score      int
-	CreateTime int
-	UpdateTime int
+	FinishedOn int
 	Visible    bool
 }
 
@@ -28,7 +27,7 @@ func AddJob(job Job) error {
 
 // 任务完成
 func EndJob(jobId int) error {
-	if err := model.DB.Table("job").Where("id = ?", jobId).Update("finnished_on", time.Now().Unix()).Error; err != nil {
+	if err := model.DB.Table("job").Where("id = ?", jobId).Update("finished_on", time.Now().Unix()).Error; err != nil {
 		logrus.Errorf("models.EndJob error, err: %v", err.Error())
 		return err
 	}
@@ -45,7 +44,13 @@ func Visible(jobId int) error {
 }
 
 func GetJobByUid(uid int) ([]*Job, error) {
-
+	var jobs []*Job
+	err := model.DB.Where("user_id", uid).Find(jobs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		logrus.Errorf("model.GetJobByUid error, err: %v", err.Error())
+		return nil, err
+	}
+	return jobs, nil
 }
 
 // 获取所有可见的前10名
@@ -53,7 +58,7 @@ func GetJobsByRank10() ([]*Job, error) {
 	var jobs []*Job
 	err := model.DB.Where("visible", true).Order("score desc").Limit(10).Find(jobs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		logrus.Errorf("model.GetOperators error, err: %v", err.Error())
+		logrus.Errorf("model.GetJobsByRank10 error, err: %v", err.Error())
 		return nil, err
 	}
 	return jobs, nil
@@ -64,7 +69,7 @@ func GetJobsByRandom10() ([]*Job, error) {
 	var jobs []*Job
 	err := model.DB.Where("visible", true).Order("rand()").Limit(10).Find(jobs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		logrus.Errorf("model.GetOperators error, err: %v", err.Error())
+		logrus.Errorf("model.GetJobsByRandom10 error, err: %v", err.Error())
 		return nil, err
 	}
 	return jobs, nil

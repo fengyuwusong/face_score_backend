@@ -9,3 +9,12 @@
 /.idea/markdown-navigator.xml
 /.idea/markdown-navigator/profiles_settings.xml
 /.idea/vcs.xml
+/.idea/dataSources/bc3d389f-0ce9-4f2c-9eb0-f5a51d353059.xml
+/.idea/dataSources/bc3d389f-0ce9-4f2c-9eb0-f5a51d353059/storage_v2/_src_/schema/sys.zb4BAA.meta
+/.idea/dataSources/bc3d389f-0ce9-4f2c-9eb0-f5a51d353059/storage_v2/_src_/schema/sys.zb4BAA.zip
+/.idea/sqldialects.xml
+/pkg/windows_amd64/github.com/sirupsen/logrus.a
+/pkg/windows_amd64/github.com/sirupsen/logrus/hooks/test.a
+/pkg/windows_amd64/github.com/sirupsen/logrus/internal/testutils.a
+/pkg/windows_amd64/pkg/config.a
+/.idea
