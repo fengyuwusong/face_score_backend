@@ -4,12 +4,13 @@ import (
 	"os"
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
 	HttpServer HttpServer
-	Mysql            Mysql
-	RabbitMQ         RabbitMQ
+	Mysql      Mysql
+	RabbitMQ   RabbitMQ
 }
 
 type HttpServer struct {
@@ -38,13 +39,21 @@ type RabbitMQ struct {
 var config *Config
 
 // 创建配置对象
-func InitConfig(confPath string) {
+func InitConfig(confPath string) error {
 	config = &Config{}
-	loadFile(confPath, config)
+	err := loadFile(confPath, config)
+	if err != nil {
+		logrus.Errorf("loadFile error, res: %v", err)
+		return err
+	}
+	return nil
 }
 
 // 获取配置
 func GetConfig() *Config {
+	if config == nil{
+		logrus.Fatalln("config is nil, need to InitConfig")
+	}
 	return config
 }
 

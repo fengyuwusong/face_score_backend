@@ -9,12 +9,12 @@ import (
 type User struct {
 	model.Model
 	Id       int
-	OpenId   int
+	OpenId   string
 	UserName string
 }
 
-func AddUser(user User) error {
-	if err := model.DB.Create(user).Error; err != nil {
+func AddUser(user *User) error {
+	if err := model.DB.Create(&user).Error; err != nil {
 		logrus.Errorf("models.AddUser error, err: %v", err.Error())
 		return err
 	}
