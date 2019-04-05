@@ -9,12 +9,12 @@ import (
 type User struct {
 	model.Model
 	Id       int
-	OpenId   int
+	OpenId   string
 	UserName string
 }
 
-func AddUser(user User) error {
-	if err := model.DB.Create(user).Error; err != nil {
+func AddUser(user *User) error {
+	if err := model.DB.Create(&user).Error; err != nil {
 		logrus.Errorf("models.AddUser error, err: %v", err.Error())
 		return err
 	}
@@ -35,14 +35,14 @@ func GetUserById(id int) (*User, error) {
 }
 
 // check user
-func Auth(openId string) (bool, error) {
+func CheckUserByOpenId(openId string) (bool, error) {
 	var user User
 	if err := model.DB.Where("open_id = ?", openId).Find(&user).Error; err != nil {
 		// 用户不存在
 		if err == gorm.ErrRecordNotFound {
 			return false, nil
 		}
-		logrus.Errorf("models.GetUserById error, err: %v", err.Error())
+		logrus.Errorf("models.CheckUserByOpenId error, err: %v", err.Error())
 		return false, err
 	}
 	return true, nil

@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"time"
 	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
 )
 
 type Job struct {
@@ -17,7 +18,7 @@ type Job struct {
 	Visible    bool
 }
 
-func AddJob(job Job) error {
+func AddJob(job *Job) error {
 	if err := model.DB.Create(&job).Error; err != nil {
 		logrus.Errorf("model.AddJob error, err: %v", err.Error())
 		return err
@@ -26,51 +27,72 @@ func AddJob(job Job) error {
 }
 
 // 任务完成
-func EndJob(jobId int) error {
-	if err := model.DB.Table("job").Where("id = ?", jobId).Update("finished_on", time.Now().Unix()).Error; err != nil {
+func EndJob(jobId int, score int) error {
+	update := map[string]interface{}{
+		"finished_on": time.Now().Unix(),
+		"score": score,
+	}
+	e := model.DB.Table("job").Where("id = ?", jobId).Update(update)
+	if err := e.Error; err != nil {
 		logrus.Errorf("models.EndJob error, err: %v", err.Error())
 		return err
+	}
+	if e.RowsAffected != 1{
+		return errors.New("job id not exist")
 	}
 	return nil
 }
 
 // 可见
 func Visible(jobId int) error {
-	if err := model.DB.Table("job").Where("id = ?", jobId).Update("visible", true).Error; err != nil {
+	e := model.DB.Table("job").Where("id = ?", jobId).Update("visible", true)
+	if err := e.Error; err != nil {
 		logrus.Errorf("models.Visible error, err: %v", err.Error())
 		return err
+	}
+	if e.RowsAffected != 1{
+		return errors.New("job id not exist")
 	}
 	return nil
 }
 
-func GetJobByUid(uid int) ([]*Job, error) {
+func GetJobByUserId(uid int) ([]*Job, error) {
 	var jobs []*Job
-	err := model.DB.Where("user_id", uid).Find(jobs).Error
+	err := model.DB.Where("user_id = ?", uid).Find(&jobs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		logrus.Errorf("model.GetJobByUid error, err: %v", err.Error())
+		logrus.Errorf("model.GetJobByUserId error, err: %v", err.Error())
 		return nil, err
 	}
 	return jobs, nil
 }
 
 // 获取所有可见的前10名
-func GetJobsByRank10() ([]*Job, error) {
+func GetJobsByRank(num int) ([]*Job, error) {
 	var jobs []*Job
-	err := model.DB.Where("visible", true).Order("score desc").Limit(10).Find(jobs).Error
+	err := model.DB.Where("visible = ?", true).Order("score desc").Limit(num).Find(&jobs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		logrus.Errorf("model.GetJobsByRank10 error, err: %v", err.Error())
+		logrus.Errorf("model.GetJobsByRank error, err: %v", err.Error())
 		return nil, err
 	}
 	return jobs, nil
 }
 
-// 随机获取可见的10名
-func GetJobsByRandom10() ([]*Job, error) {
+// 随机获取可见的
+func GetJobsByRandom(num int) ([]*Job, error) {
 	var jobs []*Job
-	err := model.DB.Where("visible", true).Order("rand()").Limit(10).Find(jobs).Error
+	err := model.DB.Where("visible = ?", true).Order("rand()").Limit(num).Find(&jobs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logrus.Errorf("model.GetJobsByRandom10 error, err: %v", err.Error())
 		return nil, err
 	}
 	return jobs, nil
+}
+
+func GetJobById(jobId int) (*Job, error) {
+	var job Job
+	if err := model.DB.Where("id = ?", jobId).Find(&job).Error; err != nil {
+		logrus.Errorf("models.GetJobById error, err: %v", err.Error())
+		return nil, err
+	}
+	return &job, nil
 }

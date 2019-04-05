@@ -2,12 +2,12 @@ package model
 
 import (
 	"fmt"
-	log "github.com/howiechou/golog"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"time"
 	"errors"
 	"pkg/config"
+	"github.com/sirupsen/logrus"
 )
 
 var DB *gorm.DB
@@ -34,7 +34,7 @@ func Setup(config config.Mysql) {
 		config.DBName))
 
 	if err != nil {
-		log.Fatalf("models.Setup err: %v", err)
+		logrus.Fatalf("models.Setup err: %v", err)
 		return
 	}
 

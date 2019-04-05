@@ -17,7 +17,7 @@ create table if not exists job (
   score        int unsigned,
   created_on   int          not null,
   finished_on int,
-  Visible      bool                     default false
+  visible      bool                     default false
 )
   engine = innodb
   default charset = utf8
@@ -35,7 +35,7 @@ CREATE TABLE if not exists comment (
   comment = '评论表';
 create table if not exists file (
   id         int unsigned primary key auto_increment,
-  use_id     int unsigned not null,
+  user_id     int unsigned not null,
   name       varchar(255) not null,
   md5        varchar(255) not null,
   uri        varchar(255) not null,

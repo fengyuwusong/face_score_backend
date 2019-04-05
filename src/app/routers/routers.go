@@ -31,21 +31,25 @@ func registerMiddleWare(engine *gin.Engine) {
 
 func registerRoutes(engine *gin.Engine) {
 	// 查询用户信息
-	engine.GET("/user", user.Get)
+	engine.GET("/user/:uid", user.Get)
 	// 添加用户
 	engine.POST("/user", user.Add)
 	// 上传文件
-	engine.POST("/file", file.Upload)
-	// 提交任务
-	engine.POST("/commit/:method", job.Commit)
-	// 查询任务
-	engine.GET("/query/:jobid", job.Query)
-	// 下载文件
-	engine.GET("/file/:jobid/:fileid", file.Download)
+	engine.POST("/file/:userId", file.Upload)
 	// 添加评论
-	engine.POST("/comment/:userid", comment.Add)
+	engine.POST("/comment/:userId", comment.Add)
 	// 删除评论
-	engine.DELETE("/comment/:commentid", comment.Delete)
+	engine.DELETE("/comment/:commentId", comment.Delete)
 	// 获取评论
-	engine.GET("/comment/:userid", comment.Get)
+	engine.GET("/comment/:jobId", comment.Get)
+	// 获取排行榜
+	engine.GET("/job/rank", job.GetRank)
+	// 随机获取job
+	engine.GET("/job/random", job.GetByRandom)
+	// 根据uid获取
+	engine.GET("/job/:userId", job.GetJobsByUid)
+	// 提交任务
+	engine.POST("/job/commit/:method", job.Commit)
+	// 查询任务
+	engine.GET("/job/query/:jobId", job.Query)
 }
