@@ -3,33 +3,38 @@ package services
 import (
 	"app/models"
 	"github.com/sirupsen/logrus"
+
+	"app/job"
+	"github.com/pkg/errors"
 )
 
 func Commit(userId, fileId int) (*models.Job, error) {
-	job := &models.Job{
+	jobModel := &models.Job{
 		UserId: userId,
 		FileId: fileId,
 	}
-	// 获取file路径
-	// todo 往mq发送消息
-
-	// todo 将job写入内存缓存
-
+	JPool := job.GetJPool()
+	_, err := JPool.NewJobInfo(*jobModel)
+	if err != nil {
+		logrus.Errorf("services.Commit error, err: %v", err)
+	}
 	// 入库
-	err := models.AddJob(job)
+	err = models.AddJob(jobModel)
 	if err != nil {
 		logrus.Errorf("services.Commit error, err: %v", err)
 		return nil, err
 	}
-	return job, nil
+	return jobModel, nil
 }
 
-func Query(jobId int) (map[string]interface{}, error) {
-	// todo 获取缓存判断是否已完成
-
-	// todo 模拟进度条
-	data := map[string]interface{}{"progress": 0}
-	return data, nil
+func Query(jobId int) (*job.JobInfo, error) {
+	JPool := job.GetJPool()
+	jobInfo := JPool.GetJobInfo(jobId)
+	if jobInfo == nil {
+		logrus.Errorf("services.Query error, err: GetJobInfo return nil")
+		return nil, errors.New("GetJobInfo return nil")
+	}
+	return jobInfo, nil
 }
 
 func GetJobsByUid(uid int) ([]*models.Job, error) {

@@ -32,7 +32,8 @@ type RabbitMQ struct {
 	Port      int
 	Username  string
 	Password  string
-	QueueName string
+	PushQueueName string
+	ListenQueueName string
 }
 
 // config单例对象

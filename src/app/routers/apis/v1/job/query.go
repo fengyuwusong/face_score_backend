@@ -25,5 +25,11 @@ func Query(ctx *gin.Context) {
 		return
 	}
 	data, err := services.Query(jobId)
+	if err != nil{
+		logrus.Errorf("query.Query error, get job error")
+		ctx.String(http.StatusInternalServerError, "get job error")
+		ctx.Abort()
+		return
+	}
 	ctx.JSON(http.StatusOK, data)
 }
