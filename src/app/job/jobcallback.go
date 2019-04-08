@@ -12,10 +12,10 @@ type Callback struct {
 }
 
 var CBack Callback
-func SetUp()  {
+func SetUpJobCallback()  {
 	CBack := Callback{}
 	mqConfig := config.GetConfig().RabbitMQ
-	url := fmt.Sprintf("pkg_amqp://%s:%s@%s:%d",
+	url := fmt.Sprintf("amqp://%s:%s@%s:%d",
 		mqConfig.Username, mqConfig.Password, mqConfig.Host, mqConfig.Port)
 	CBack.MQConsumer = pkg_amqp.SetUp(url)
 	CBack.MQConsumer.BindQueue(config.GetConfig().RabbitMQ.ListenQueueName, CBack)

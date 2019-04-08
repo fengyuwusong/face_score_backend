@@ -10,7 +10,7 @@ import (
 )
 
 func Get(ctx *gin.Context) {
-	idStr := ctx.Param("id")
+	idStr := ctx.Param("userId")
 	if len(idStr) == 0 {
 		logrus.Errorf("user.Get error, error: id is empty")
 		ctx.String(http.StatusBadRequest, "id is empty")
@@ -46,7 +46,7 @@ func Add(ctx *gin.Context) {
 		return
 	}
 
-	openId := ctx.PostForm("open_id")
+	openId := ctx.PostForm("openId")
 	if len(openId) == 0 {
 		logrus.Errorf("user.Add error, error: openId is empty")
 		ctx.String(http.StatusBadRequest, "openId is empty")

@@ -24,3 +24,9 @@ func HashMD5(f string) string {
 	hex.EncodeToString(r)
 	return hex.EncodeToString(r)
 }
+
+// 判断文件是否存在
+func IsExist(f string) bool {
+	_, err := os.Stat(f)
+	return err == nil || os.IsExist(err)
+}

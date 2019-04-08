@@ -21,8 +21,11 @@ var JPool JobInfoPool
 
 func init() {
 	JPool = JobInfoPool{}
+}
+
+func SetUpJobPool()  {
 	mqConfig := config.GetConfig().RabbitMQ
-	url := fmt.Sprintf("pkg_amqp://%s:%s@%s:%d",
+	url := fmt.Sprintf("amqp://%s:%s@%s:%d",
 		mqConfig.Username, mqConfig.Password, mqConfig.Host, mqConfig.Port)
 	JPool.MQProducer = pkg_amqp.SetUp(url)
 }

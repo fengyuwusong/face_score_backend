@@ -12,7 +12,7 @@ type MQBase struct {
 }
 
 func SetUp(url string) MQBase {
-	conn, err := amqp.Dial("pkg_amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(url)
 	if err != nil {
 		logrus.Errorf("Failed to connect to RabbitMQ, err: %v", err)
 	}

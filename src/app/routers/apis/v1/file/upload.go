@@ -33,6 +33,8 @@ func Upload(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
+	logrus.Infof("fileHeader: %v", fileHeader.Header)
+	logrus.Infof("Filename: %v", fileHeader.Filename)
 	file, err := services.Upload(uid, fileHeader.Filename, fileBuffer)
 	if err != nil {
 		logrus.Errorf("file.Upload: upload file error, err: %v", err)

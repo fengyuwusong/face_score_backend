@@ -12,8 +12,14 @@ import (
 )
 
 func Upload(userId int, fileName string, fileBuffer multipart.File) (*models.File, error) {
+	rootPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	tempPath := rootPath + "\\static\\temp"
+	// 判断文件夹是否存在
+	if !utils.IsExist(tempPath){
+		os.MkdirAll(tempPath, os.ModePerm)
+	}
 	//创建文件
-	out, err := os.Create("static/temp/" + fileName)
+	out, err := os.Create(tempPath + "\\" + fileName)
 	if err != nil {
 		logrus.Errorf("services.Upload os.Create error, err: %v", err)
 		return nil, err
@@ -25,9 +31,14 @@ func Upload(userId int, fileName string, fileBuffer multipart.File) (*models.Fil
 		return nil, err
 	}
 	// 计算文件md5
-	md5 := utils.HashMD5("static/temp/" + fileName)
+	md5 := utils.HashMD5(tempPath + "\\" + fileName)
 	// 将文件转移到用户目录下 以md5命名
-	path := "static/" + strconv.Itoa(userId) + "/" + md5 + filepath.Ext(fileName)
+	userPath := rootPath + "\\static\\" + strconv.Itoa(userId)
+	// 判断文件夹是否存在
+	if !utils.IsExist(userPath){
+		os.MkdirAll(userPath, os.ModePerm)
+	}
+	path := userPath + "\\" + md5 + filepath.Ext(fileName)
 	out, err = os.Create(path)
 	if err != nil {
 		logrus.Errorf("services.Upload os.Create error, err: %v", err)

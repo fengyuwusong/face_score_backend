@@ -8,6 +8,8 @@ import (
 	"app/routers/apis/v1/comment"
 	"app/middleware"
 	"pkg/httpservice"
+	"pkg/config"
+	"fmt"
 )
 
 func Start() {
@@ -21,6 +23,7 @@ func Start() {
 
 	// 注册路由
 	registerRoutes(httpService.Engine)
+	httpService.Engine.Run(fmt.Sprintf(":%d", config.GetConfig().HttpServer.Port))
 
 }
 
@@ -31,7 +34,7 @@ func registerMiddleWare(engine *gin.Engine) {
 
 func registerRoutes(engine *gin.Engine) {
 	// 查询用户信息
-	engine.GET("/user/:uid", user.Get)
+	engine.GET("/user/:userId", user.Get)
 	// 添加用户
 	engine.POST("/user", user.Add)
 	// 上传文件
@@ -47,7 +50,7 @@ func registerRoutes(engine *gin.Engine) {
 	// 随机获取job
 	engine.GET("/job/random", job.GetByRandom)
 	// 根据uid获取
-	engine.GET("/job/:userId", job.GetJobsByUid)
+	engine.GET("/job/uid/:userId", job.GetJobsByUid)
 	// 提交任务
 	engine.POST("/job/commit/:method", job.Commit)
 	// 查询任务
