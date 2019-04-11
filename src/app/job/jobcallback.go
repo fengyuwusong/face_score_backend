@@ -6,6 +6,7 @@ import (
 	"pkg/pkg_amqp"
 	"pkg/config"
 	"fmt"
+	"github.com/sirupsen/logrus"
 )
 type Callback struct {
 	MQConsumer pkg_amqp.MQBase
@@ -23,6 +24,8 @@ func SetUpJobCallback()  {
 
 // 监听回调信息
 func (this Callback) Response(msgId string, headers amqp.Table, body []byte) {
+	logrus.Info("get response message, msgId: " + msgId + "body: " + string(body))
+	// todo msgid
 	jobId, _ := strconv.Atoi(msgId)
 	score, _ := strconv.Atoi(string(body))
 	GetJPool().EndJob(jobId, score)

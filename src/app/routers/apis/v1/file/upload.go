@@ -42,5 +42,5 @@ func Upload(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
-	ctx.JSON(http.StatusOK, file)
+	ctx.JSON(http.StatusOK, *file)
 }

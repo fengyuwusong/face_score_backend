@@ -23,6 +23,10 @@ func Start() {
 
 	// 注册路由
 	registerRoutes(httpService.Engine)
+
+	// 注册静态资源
+	httpService.Engine.Static("/static", "static")
+
 	httpService.Engine.Run(fmt.Sprintf(":%d", config.GetConfig().HttpServer.Port))
 
 }

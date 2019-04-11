@@ -15,3 +15,6 @@
 /.idea/sqldialects.xml
 /pkg
 /.idea
+/static/1/*.jpg
+/static/6/*.jpg
+/static/temp/*.jpg

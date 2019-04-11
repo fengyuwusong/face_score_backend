@@ -18,7 +18,13 @@ type Job struct {
 	Visible    bool
 }
 
+type JobFull struct {
+	Job
+	Uri string
+}
 func AddJob(job *Job) error {
+	// todo 之后更新修改默认不可见 需掉用可见接口
+	job.Visible = true
 	if err := model.DB.Create(&job).Error; err != nil {
 		logrus.Errorf("model.AddJob error, err: %v", err.Error())
 		return err
@@ -56,9 +62,14 @@ func Visible(jobId int) error {
 	return nil
 }
 
-func GetJobByUserId(uid int) ([]*Job, error) {
-	var jobs []*Job
-	err := model.DB.Where("user_id = ?", uid).Find(&jobs).Error
+func GetJobByUserId(uid int) ([]*JobFull, error) {
+	var jobs []*JobFull
+	err := model.DB.
+		Table("job").
+		Select("job.*, file.uri").
+		Joins("left join file on file.id = job.file_id").
+		Where("job.user_id = ?", uid).
+		Find(&jobs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logrus.Errorf("model.GetJobByUserId error, err: %v", err.Error())
 		return nil, err
@@ -67,9 +78,16 @@ func GetJobByUserId(uid int) ([]*Job, error) {
 }
 
 // 获取所有可见的前10名
-func GetJobsByRank(num int) ([]*Job, error) {
-	var jobs []*Job
-	err := model.DB.Where("visible = ?", true).Order("score desc").Limit(num).Find(&jobs).Error
+func GetJobsByRank(num int) ([]*JobFull, error) {
+	var jobs []*JobFull
+	err := model.DB.
+		Table("job").
+		Select("job.*, file.uri").
+		Joins("left join file on file.id = job.file_id").
+		Where("visible = ?", true).
+		Order("score desc").
+		Limit(num).
+		Find(&jobs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logrus.Errorf("model.GetJobsByRank error, err: %v", err.Error())
 		return nil, err
@@ -78,9 +96,16 @@ func GetJobsByRank(num int) ([]*Job, error) {
 }
 
 // 随机获取可见的
-func GetJobsByRandom(num int) ([]*Job, error) {
-	var jobs []*Job
-	err := model.DB.Where("visible = ?", true).Order("rand()").Limit(num).Find(&jobs).Error
+func GetJobsByRandom(num int) ([]*JobFull, error) {
+	var jobs []*JobFull
+	err := model.DB.
+		Table("job").
+		Select("job.*, file.uri").
+		Joins("left join file on file.id = job.file_id").
+		Where("visible = ?", true).
+		Order("rand()").
+		Limit(num).
+		Find(&jobs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		logrus.Errorf("model.GetJobsByRandom10 error, err: %v", err.Error())
 		return nil, err

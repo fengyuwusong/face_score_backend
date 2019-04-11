@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"math/rand"
+	"encoding/json"
 )
 
 type JobInfoPool struct {
@@ -30,11 +31,11 @@ func SetUpJobPool()  {
 	JPool.MQProducer = pkg_amqp.SetUp(url)
 }
 
-func GetJPool() JobInfoPool {
-	return JPool
+func GetJPool() *JobInfoPool {
+	return &JPool
 }
 
-func (j JobInfoPool) NewJobInfo(job models.Job) (*JobInfo, error) {
+func (j *JobInfoPool) NewJobInfo(job models.Job) (*JobInfo, error) {
 	jobInfo := NewJobInfo(job)
 	j.Add(fmt.Sprintf("%d_job", jobInfo.Id), jobInfo)
 	// 查询fileid所在路径
@@ -43,20 +44,25 @@ func (j JobInfoPool) NewJobInfo(job models.Job) (*JobInfo, error) {
 		logrus.Errorf("NewJobInfo models.GetFileById error, err: %v", err)
 		return nil, err
 	}
-	body := []byte(file.Uri)
+	// todo 传jobid及uri
+	data := map[string]interface{}{
+		"uri": file.Uri,
+		"jobId": job.Id,
+	}
+	body, _ := json.Marshal(data)
 	err = j.MQProducer.Push2MQ(strconv.Itoa(job.Id), body, config.GetConfig().RabbitMQ.PushQueueName)
 	if err != nil {
 		logrus.Errorf("NewJobInfo MQProducer.Push2MQ error, err: %v", err)
 		return nil, err
 	}
-	return &jobInfo, nil
+	return jobInfo, nil
 }
 
-func (j JobInfoPool) GetJobInfo(jobId int) *JobInfo {
+func (j *JobInfoPool) GetJobInfo(jobId int) *JobInfo {
 	if r, b := j.Get(fmt.Sprintf("%d_job", jobId)); b {
 		jobInfo := r.(*JobInfo)
 		if jobInfo.Progress != 100{
-			jobInfo.Progress += rand.Intn(5)
+			jobInfo.Progress += rand.Intn(8) + 1
 			if jobInfo.Progress>= 100{
 				jobInfo.Progress = 99
 			}
@@ -77,12 +83,17 @@ func (j JobInfoPool) GetJobInfo(jobId int) *JobInfo {
 	return nil
 }
 
-func (j JobInfoPool) EndJob(jobId, score int) error {
+func (j *JobInfoPool) EndJob(jobId, score int) error {
 	r, b := j.Get(fmt.Sprintf("%d_job", jobId))
 	if !b {
 		return errors.New("can't find jobId")
 	}
-	jobInfo := r.(JobInfo)
+	jobInfo := r.(*JobInfo)
 	jobInfo.EndJobInfo(score)
+	// 将数据入库
+	if err := models.EndJob(jobId, score); err != nil{
+		logrus.Errorf("jobPool.EndJob models.EndJob error, err: %v", err)
+		return err
+	}
 	return nil
 }

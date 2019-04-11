@@ -13,16 +13,17 @@ func Commit(userId, fileId int) (*models.Job, error) {
 		UserId: userId,
 		FileId: fileId,
 	}
-	JPool := job.GetJPool()
-	_, err := JPool.NewJobInfo(*jobModel)
-	if err != nil {
-		logrus.Errorf("services.Commit error, err: %v", err)
-	}
 	// 入库
-	err = models.AddJob(jobModel)
+	err := models.AddJob(jobModel)
 	if err != nil {
 		logrus.Errorf("services.Commit error, err: %v", err)
 		return nil, err
+	}
+	// 写入缓存
+	JPool := job.GetJPool()
+	_, err = JPool.NewJobInfo(*jobModel)
+	if err != nil {
+		logrus.Errorf("services.Commit error, err: %v", err)
 	}
 	return jobModel, nil
 }
@@ -37,7 +38,7 @@ func Query(jobId int) (*job.JobInfo, error) {
 	return jobInfo, nil
 }
 
-func GetJobsByUid(uid int) ([]*models.Job, error) {
+func GetJobsByUid(uid int) ([]*models.JobFull, error) {
 	jobs, err := models.GetJobByUserId(uid)
 	if err != nil {
 		logrus.Errorf("services.GetJobsByUid error, err: %v", err)
@@ -55,7 +56,7 @@ func SetVisible(jobId int) error {
 	return nil
 }
 
-func GetJobsRank() ([]*models.Job, error) {
+func GetJobsRank() ([]*models.JobFull, error) {
 	jobs, err := models.GetJobsByRank(10)
 	if err != nil {
 		logrus.Errorf("services.GetJobsRank error, err: %v", err)
@@ -64,7 +65,7 @@ func GetJobsRank() ([]*models.Job, error) {
 	return jobs, err
 }
 
-func GetJobsByRandom() ([]*models.Job, error) {
+func GetJobsByRandom() ([]*models.JobFull, error) {
 	jobs, err := models.GetJobsByRandom(10)
 	if err != nil {
 		logrus.Errorf("services.GetJobsByRandom error, err: %v", err)

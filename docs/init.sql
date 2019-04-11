@@ -11,20 +11,20 @@ CREATE TABLE if not exists user (
   default charset = utf8
   comment = '用户表';
 create table if not exists job (
-  id           int unsigned primary key auto_increment,
-  user_id      int unsigned not null,
-  file_id      int unsigned not null,
-  score        int unsigned,
-  created_on   int          not null,
+  id          int unsigned primary key auto_increment,
+  user_id     int unsigned not null,
+  file_id     int unsigned not null,
+  score       int unsigned,
+  created_on  int          not null,
   finished_on int,
-  visible      bool                     default false
+  visible     bool                     default true
 )
   engine = innodb
   default charset = utf8
   comment = '任务表';
 CREATE TABLE if not exists comment (
   id         int unsigned primary key auto_increment,
-  user_id     int unsigned  not null,
+  user_id    int unsigned  not null,
   job_id     int           not null,
   content    varchar(1023) not null,
   created_on int           not null,
@@ -35,7 +35,7 @@ CREATE TABLE if not exists comment (
   comment = '评论表';
 create table if not exists file (
   id         int unsigned primary key auto_increment,
-  user_id     int unsigned not null,
+  user_id    int unsigned not null,
   name       varchar(255) not null,
   md5        varchar(255) not null,
   uri        varchar(255) not null,
